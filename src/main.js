@@ -8,6 +8,8 @@ import {  Search } from './bike.js';
 $(document).ready(function() {
   $("#form").submit(function(event){
     event.preventDefault();
+    $("#results-table").empty();
+    $("#modals").empty();
 
     let location = $("#location").val();
     let distance = 10;
@@ -15,18 +17,23 @@ $(document).ready(function() {
 
     let newSearch = new Search();
     let promise = newSearch.getBike(location, distance, manufacturer);
-    console.log(promise);
+
     promise.then(function(response) {
       let body = JSON.parse(response);
       for (let i = 0; i < body.bikes.length; i++) {
+        let thumbnail = (body.bikes[i].thumb != null) ? 
+          `<img class="tableImg" id="img${i}" data-toggle="modal" data-target="#modal${i}" src=${body.bikes[i].thumb} alt="Bike"></img>` : 
+          `No Image Uploaded`;
+        let date = new Date(body.bikes[i].date_stolen * 1000)
+
         $('#results-table').append(
           `<tr>
             <td>${body.bikes[i].stolen_location}</td>
-            <td>${body.bikes[i].date_stolen}</td>
+            <td>${date.toDateString()}</td>
             <td>${body.bikes[i].frame_colors[0]}</td>
             <td>${body.bikes[i].year}</td>
             <td>${body.bikes[i].manufacturer_name}</td>
-            <td><img class="tableImg" id="img${i}" data-toggle="modal" data-target="#modal${i}" src=${body.bikes[i].thumb} alt="&nbsp;no image uploaded"></td>
+            <td>${thumbnail}</td>
           </tr>`
         );
         $('#modals').append(
